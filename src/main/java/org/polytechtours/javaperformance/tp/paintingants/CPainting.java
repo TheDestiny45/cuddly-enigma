@@ -11,6 +11,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * <p>
@@ -41,7 +43,7 @@ public class CPainting extends Canvas implements MouseListener {
   private Graphics mGraphics;
   // Objet ne servant que pour les bloc synchronized pour la manipulation du
   // tableau des couleurs
-  private Object mMutexCouleurs = new Object();
+  private ReadWriteLock rwColorLock = new ReentrantReadWriteLock();
   // tableau des couleurs, il permert de conserver en memoire l'état de chaque
   // pixel du canvas, ce qui est necessaire au deplacemet des fourmi
   // il sert aussi pour la fonction paint du Canvas
@@ -71,7 +73,7 @@ public class CPainting extends Canvas implements MouseListener {
 
     // initialisation de la matrice des couleurs
     mCouleurs = new Color[mDimension.width][mDimension.height];
-    synchronized (mMutexCouleurs) {
+    synchronized (rwColorLock) {
       for (i = 0; i != mDimension.width; i++) {
         for (j = 0; j != mDimension.height; j++) {
           mCouleurs[i][j] = new Color(mCouleurFond.getRed(), mCouleurFond.getGreen(), mCouleurFond.getBlue());
@@ -86,9 +88,10 @@ public class CPainting extends Canvas implements MouseListener {
    * d'une case
    ******************************************************************************/
   public Color getCouleur(int x, int y) {
-    synchronized (mMutexCouleurs) {
-      return mCouleurs[x][y];
-    }
+    rwColorLock.readLock().lock();
+      Color c = mCouleurs[x][y];
+    rwColorLock.readLock().unlock();
+    return c;
   }
 
   /******************************************************************************
@@ -122,7 +125,7 @@ public class CPainting extends Canvas implements MouseListener {
   public void init() {
     int i, j;
     mGraphics = getGraphics();
-    synchronized (mMutexCouleurs) {
+    synchronized (rwColorLock) {
       mGraphics.clearRect(0, 0, mDimension.width, mDimension.height);
 
       // initialisation de la matrice des couleurs
@@ -293,7 +296,7 @@ public class CPainting extends Canvas implements MouseListener {
   public void paint(Graphics pGraphics) {
     int i, j;
 
-    synchronized (mMutexCouleurs) {
+    synchronized (rwColorLock) {
       for (i = 0; i < mDimension.width; i++) {
         for (j = 0; j < mDimension.height; j++) {
           pGraphics.setColor(mCouleurs[i][j]);
@@ -313,7 +316,7 @@ public class CPainting extends Canvas implements MouseListener {
     float R, G, B;
     Color lColor;
 
-    synchronized (mMutexCouleurs) {
+    rwColorLock.writeLock().lock();
       if (!mSuspendu) {
         // on colorie la case sur laquelle se trouve la fourmi
         mGraphics.setColor(c);
@@ -412,7 +415,7 @@ public class CPainting extends Canvas implements MouseListener {
           }
           break;
       }// end switch
-    }
+    rwColorLock.writeLock().unlock();
   }
 
   /******************************************************************************
