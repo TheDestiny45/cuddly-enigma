@@ -488,7 +488,7 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
         }
 
       }
-      //showStatus(lMessage);
+      showStatus(lMessage.toString());
 
       try {
         Thread.sleep(10);
