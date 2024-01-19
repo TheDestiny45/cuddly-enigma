@@ -464,7 +464,6 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     mPainting.init();
 
     Thread currentThread = Thread.currentThread();
-    currentThread.setName("Main Thread");
 
     /*
      * for ( i=0 ; i<mColonie.size() ; i++ ) {
