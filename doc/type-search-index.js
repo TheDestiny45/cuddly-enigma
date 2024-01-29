@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"org.polytechtours.javaperformance.tp.paintingants","l":"CColonie"},{"p":"org.polytechtours.javaperformance.tp.paintingants","l":"CFourmi"},{"p":"org.polytechtours.javaperformance.tp.paintingants","l":"CPainting"},{"p":"org.polytechtours.javaperformance.tp.paintingants","l":"PaintingAnts"}]
