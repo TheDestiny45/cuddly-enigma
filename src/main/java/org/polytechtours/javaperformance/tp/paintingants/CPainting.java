@@ -11,8 +11,6 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * <p>
@@ -33,17 +31,29 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @version 1.0
  */
 
+/**
+ * Represents a painting area for the PaintingAnts application.
+ * This class extends the Canvas class and implements the MouseListener
+ * interface.
+ * It provides methods for initializing the painting area, setting the
+ * background color,
+ * retrieving the color at a specific coordinate, getting the dimension of the
+ * painting,
+ * getting the height and width of the painting, initializing the painting,
+ * handling mouse click events,
+ * and painting the graphics on the screen.
+ */
 public class CPainting extends Canvas implements MouseListener {
   private static final long serialVersionUID = 1L;
   // matrice servant pour le produit de convolution
-  static private float[][] mMatriceConv9 = new float[3][3];
-  static private float[][] mMatriceConv25 = new float[5][5];
-  static private float[][] mMatriceConv49 = new float[7][7];
+  private static float[][] mMatriceConv9 = new float[3][3];
+  private static float[][] mMatriceConv25 = new float[5][5];
+  private static float[][] mMatriceConv49 = new float[7][7];
   // Objet de type Graphics permettant de manipuler l'affichage du Canvas
   private Graphics mGraphics;
   // Objet ne servant que pour les bloc synchronized pour la manipulation du
   // tableau des couleurs
-  private ReadWriteLock rwColorLock = new ReentrantReadWriteLock();
+  private Object mMutexCouleurs = new Object();
   // tableau des couleurs, il permert de conserver en memoire l'état de chaque
   // pixel du canvas, ce qui est necessaire au deplacemet des fourmi
   // il sert aussi pour la fonction paint du Canvas
@@ -60,6 +70,12 @@ public class CPainting extends Canvas implements MouseListener {
   /******************************************************************************
    * Titre : public CPainting() Description : Constructeur de la classe
    ******************************************************************************/
+  /**
+   * Represents a painting area for the PaintingAnts application.
+   * This class extends the JPanel class and provides methods for initializing the
+   * painting area,
+   * setting the background color, and initializing the color matrix.
+   */
   public CPainting(Dimension pDimension, PaintingAnts pApplis) {
     int i, j;
     addMouseListener(this);
@@ -73,59 +89,62 @@ public class CPainting extends Canvas implements MouseListener {
 
     // initialisation de la matrice des couleurs
     mCouleurs = new Color[mDimension.width][mDimension.height];
-    synchronized (rwColorLock) {
+    synchronized (mMutexCouleurs) {
       for (i = 0; i != mDimension.width; i++) {
         for (j = 0; j != mDimension.height; j++) {
           mCouleurs[i][j] = new Color(mCouleurFond.getRed(), mCouleurFond.getGreen(), mCouleurFond.getBlue());
         }
       }
     }
-
   }
 
-  /******************************************************************************
-   * Titre : Color getCouleur Description : Cette fonction renvoie la couleur
-   * d'une case
-   ******************************************************************************/
+  /**
+   * Retrieves the color at the specified coordinates.
+   *
+   * @param x The x-coordinate of the pixel.
+   * @param y The y-coordinate of the pixel.
+   * @return The color at the specified coordinates.
+   */
   public Color getCouleur(int x, int y) {
-    rwColorLock.readLock().lock();
-      Color c = mCouleurs[x][y];
-    rwColorLock.readLock().unlock();
-    return c;
+    synchronized (mMutexCouleurs) {
+      return mCouleurs[x][y];
+    }
   }
 
-  /******************************************************************************
-   * Titre : Color getDimension Description : Cette fonction renvoie la
-   * dimension de la peinture
-   ******************************************************************************/
+  /**
+   * Returns the dimension of the painting.
+   *
+   * @return the dimension of the painting
+   */
   public Dimension getDimension() {
     return mDimension;
   }
 
-  /******************************************************************************
-   * Titre : Color getHauteur Description : Cette fonction renvoie la hauteur de
-   * la peinture
-   ******************************************************************************/
+  /**
+   * Returns the height of the painting.
+   *
+   * @return the height of the painting
+   */
   public int getHauteur() {
     return mDimension.height;
   }
 
-  /******************************************************************************
-   * Titre : Color getLargeur Description : Cette fonction renvoie la hauteur de
-   * la peinture
-   ******************************************************************************/
+  /**
+   * Returns the width of the painting.
+   *
+   * @return the width of the painting
+   */
   public int getLargeur() {
     return mDimension.width;
   }
 
-  /******************************************************************************
-   * Titre : void init() Description : Initialise le fond a la couleur blanche
-   * et initialise le tableau des couleurs avec la couleur blanche
-   ******************************************************************************/
+  /**
+   * Initializes the painting.
+   */
   public void init() {
     int i, j;
     mGraphics = getGraphics();
-    synchronized (rwColorLock) {
+    synchronized (mMutexCouleurs) {
       mGraphics.clearRect(0, 0, mDimension.width, mDimension.height);
 
       // initialisation de la matrice des couleurs
@@ -248,7 +267,11 @@ public class CPainting extends Canvas implements MouseListener {
     mSuspendu = false;
   }
 
-  /****************************************************************************/
+  /**
+   * Invoked when the mouse is clicked.
+   * 
+   * @param pMouseEvent the MouseEvent representing the mouse click event
+   */
   public void mouseClicked(MouseEvent pMouseEvent) {
     pMouseEvent.consume();
     if (pMouseEvent.getButton() == MouseEvent.BUTTON1) {
@@ -288,15 +311,18 @@ public class CPainting extends Canvas implements MouseListener {
   public void mouseReleased(MouseEvent pMouseEvent) {
   }
 
-  /******************************************************************************
-   * Titre : void paint(Graphics g) Description : Surcharge de la fonction qui
-   * est appelé lorsque le composant doit être redessiné
-   ******************************************************************************/
+  /**
+   * This method is responsible for painting the graphics on the screen.
+   * It iterates over the dimensions of the graphics and fills each pixel with the
+   * corresponding color.
+   *
+   * @param pGraphics The graphics object on which the painting is performed.
+   */
   @Override
   public void paint(Graphics pGraphics) {
     int i, j;
 
-    synchronized (rwColorLock) {
+    synchronized (mMutexCouleurs) {
       for (i = 0; i < mDimension.width; i++) {
         for (j = 0; j < mDimension.height; j++) {
           pGraphics.setColor(mCouleurs[i][j]);
@@ -306,17 +332,21 @@ public class CPainting extends Canvas implements MouseListener {
     }
   }
 
-  /******************************************************************************
-   * Titre : void colorer_case(int x, int y, Color c) Description : Cette
-   * fonction va colorer le pixel correspondant et mettre a jour le tabmleau des
-   * couleurs
-   ******************************************************************************/
+  /**
+   * Sets the color of a pixel at the specified coordinates.
+   * The color is diffused based on the given size parameter.
+   *
+   * @param x       the x-coordinate of the pixel
+   * @param y       the y-coordinate of the pixel
+   * @param c       the color to set
+   * @param pTaille the size parameter for color diffusion
+   */
   public void setCouleur(int x, int y, Color c, int pTaille) {
     int i, j, k, l, m, n;
     float R, G, B;
     Color lColor;
 
-    rwColorLock.writeLock().lock();
+    synchronized (mMutexCouleurs) {
       if (!mSuspendu) {
         // on colorie la case sur laquelle se trouve la fourmi
         mGraphics.setColor(c);
@@ -415,13 +445,14 @@ public class CPainting extends Canvas implements MouseListener {
           }
           break;
       }// end switch
-    rwColorLock.writeLock().unlock();
+    }
   }
 
-  /******************************************************************************
-   * Titre : setSupendu Description : Cette fonction change l'état de suspension
-   ******************************************************************************/
-
+  /**
+   * Toggles the suspension state of the painting.
+   * If the painting is currently suspended, it will be resumed and repainted.
+   * If the painting is currently active, it will be suspended and not repainted.
+   */
   public void suspendre() {
     mSuspendu = !mSuspendu;
     if (!mSuspendu) {

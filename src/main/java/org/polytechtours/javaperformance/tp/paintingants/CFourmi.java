@@ -1,10 +1,35 @@
 package org.polytechtours.javaperformance.tp.paintingants;
 // package PaintingAnts_v3;
+
 // version : 4.0
 
 import java.awt.Color;
 import java.util.Random;
 
+/**
+ * CFourmi represents an ant in a painting simulation.
+ * It has various properties such as color, direction, size, and probabilities
+ * of movement.
+ * CFourmi is responsible for depositing color on the painting based on certain
+ * rules.
+ * 
+ * @param pCouleurDeposee  The color to be deposited by the ant.
+ * @param pCouleurSuivie   The color to be followed by the ant.
+ * @param pProbaTD         The probability of moving straight.
+ * @param pProbaG          The probability of turning left.
+ * @param pProbaD          The probability of turning right.
+ * @param pProbaSuivre     The probability of following the color.
+ * @param pPainting        The painting object on which the ant moves.
+ * @param pTypeDeplacement The type of movement allowed for the ant ('d' for
+ *                         diagonal, 's' for straight).
+ * @param pInit_x          The initial x-coordinate of the ant.
+ * @param pInit_y          The initial y-coordinate of the ant.
+ * @param pInitDirection   The initial direction of the ant.
+ * @param pTaille          The size of the ant's trail.
+ * @param pSeuilLuminance  The luminance threshold for color comparison.
+ * @param pApplis          The application object that controls the painting
+ *                         simulation.
+ */
 public class CFourmi {
   // Tableau des incrémentations à effectuer sur la position des fourmis
   // en fonction de la direction du deplacement
@@ -34,8 +59,30 @@ public class CFourmi {
   // nombre de déplacements de la fourmi
   private long mNbDeplacements;
 
-  /*************************************************************************************************
-  */
+  /**
+   * CFourmi represents an ant in a painting simulation.
+   * It has various properties such as color, direction, size, and probabilities
+   * of movement.
+   * CFourmi is responsible for depositing color on the painting based on certain
+   * rules.
+   * 
+   * @param pCouleurDeposee  The color to be deposited by the ant.
+   * @param pCouleurSuivie   The color to be followed by the ant.
+   * @param pProbaTD         The probability of moving straight.
+   * @param pProbaG          The probability of turning left.
+   * @param pProbaD          The probability of turning right.
+   * @param pProbaSuivre     The probability of following the color.
+   * @param pPainting        The painting object on which the ant moves.
+   * @param pTypeDeplacement The type of movement allowed for the ant ('d' for
+   *                         diagonal, 's' for straight).
+   * @param pInit_x          The initial x-coordinate of the ant.
+   * @param pInit_y          The initial y-coordinate of the ant.
+   * @param pInitDirection   The initial direction of the ant.
+   * @param pTaille          The size of the ant's trail.
+   * @param pSeuilLuminance  The luminance threshold for color comparison.
+   * @param pApplis          The application object that controls the painting
+   *                         simulation.
+   */
   public CFourmi(Color pCouleurDeposee, Color pCouleurSuivie, float pProbaTD, float pProbaG, float pProbaD,
       float pProbaSuivre, CPainting pPainting, char pTypeDeplacement, float pInit_x, float pInit_y, int pInitDirection,
       int pTaille, float pSeuilLuminance, PaintingAnts pApplis) {
@@ -88,9 +135,13 @@ public class CFourmi {
     mNbDeplacements = 0;
   }
 
-  /*************************************************************************************************
-   * Titre : void deplacer() Description : Fonction de deplacement de la fourmi
-   *
+  /**
+   * Moves the ant to a new position on the painting.
+   * The ant follows a color-based movement strategy.
+   * The movement is determined by probabilities and random numbers.
+   * The ant's direction and position are updated accordingly.
+   * The new position is colored with the deposited color and size.
+   * The FPS counter is incremented.
    */
   public void deplacer() {
     float tirage, prob1, prob2, prob3, total;
@@ -184,42 +235,49 @@ public class CFourmi {
     mApplis.IncrementFpsCounter();
   }
 
-  /*************************************************************************************************
-  */
+  /**
+   * Returns the number of movements made by the ant.
+   *
+   * @return the number of movements made by the ant
+   */
   public long getNbDeplacements() {
     return mNbDeplacements;
   }
-  /****************************************************************************/
 
-  /*************************************************************************************************
-  */
+  /**
+   * Returns the x-coordinate of the ant.
+   *
+   * @return the x-coordinate of the ant
+   */
   public int getX() {
     return x;
   }
 
-  /*************************************************************************************************
-  */
+  /**
+   * Returns the y-coordinate of the ant's position.
+   *
+   * @return the y-coordinate of the ant's position
+   */
   public int getY() {
     return y;
   }
 
-  /*************************************************************************************************
-   * Titre : modulo Description : Fcontion de modulo permettant au fourmi de
-   * reapparaitre de l autre coté du Canvas lorsque qu'elle sorte de ce dernier
+  /**
+   * Calculates the modulo of a number.
    *
-   * @param x
-   *          valeur
-   *
-   * @return int
+   * @param x the number to calculate the modulo for
+   * @param m the modulus
+   * @return the result of the modulo operation
    */
   private int modulo(int x, int m) {
     return (x + m) % m;
   }
 
-  /*************************************************************************************************
-   * Titre : boolean testCouleur() Description : fonction testant l'égalité
-   * d'une couleur avec la couleur suivie
-   *
+  /**
+   * Tests if the given color meets the specified criteria.
+   * 
+   * @param pCouleur The color to be tested.
+   * @return true if the color meets the criteria, false otherwise.
    */
   private boolean testCouleur(Color pCouleur) {
     boolean lReponse = false;

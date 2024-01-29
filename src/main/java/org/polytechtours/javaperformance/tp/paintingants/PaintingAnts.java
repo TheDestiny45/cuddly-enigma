@@ -8,13 +8,23 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import javax.swing.Timer;
 
+/**
+ * The PaintingAnts class represents an applet that simulates ants painting on
+ * an image.
+ * It extends the java.applet.Applet class and implements the Runnable
+ * interface.
+ * The applet allows customization of various parameters such as threshold
+ * luminance,
+ * number of ants, and parameters for each ant including colors, position,
+ * direction, and size.
+ * The ants move on the image and leave trails of colors as they move.
+ */
 public class PaintingAnts extends java.applet.Applet implements Runnable {
   private static final long serialVersionUID = 1L;
   // parametres
@@ -28,7 +38,7 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
   private LinkedList<CFourmi> mColonie = new LinkedList<CFourmi>();
   private CColonie mColony;
 
-  //random
+  // random
   private Random rand = new Random();
 
   private Thread mApplis, mThreadColony;
@@ -46,10 +56,8 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
   /** stocke la valeur du compteur lors du dernier timer */
   private Long lastFps = 0L;
 
-  /****************************************************************************/
   /**
-   * incrémenter le compteur
-   *
+   * Increments the counter in a thread-safe manner.
    */
   public void compteur() {
     synchronized (mMutexCompteur) {
@@ -57,10 +65,10 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     }
   }
 
-  /****************************************************************************/
   /**
-   * Détruire l'applet
-   *
+   * Destroys the object and releases any resources held by it.
+   * This method is called when the object is no longer needed and should be
+   * cleaned up.
    */
   @Override
   public void destroy() {
@@ -71,22 +79,25 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     }
   }
 
-  /****************************************************************************/
   /**
-   * Obtenir l'information Applet
+   * Returns the information about the applet.
    *
+   * @return the information about the applet as a String
    */
   @Override
   public String getAppletInfo() {
     return "Painting Ants";
   }
 
-  /****************************************************************************/
   /**
-   * Obtenir l'information Applet
-   *
+   * Returns the parameter information for the PaintingAnts class.
+   * 
+   * @return a 2D array containing the parameter information. Each row represents
+   *         a parameter and contains the following information:
+   *         - Parameter name
+   *         - Parameter type
+   *         - Parameter description
    */
-
   @Override
   public String[][] getParameterInfo() {
     String[][] lInfo = { { "SeuilLuminance", "string", "Seuil de luminance" }, { "Img", "string", "Image" },
@@ -95,23 +106,24 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     return lInfo;
   }
 
-  /****************************************************************************/
   /**
-   * Obtenir l'état de pause
+   * Returns the current pause state of the PaintingAnts object.
    *
+   * @return true if the PaintingAnts object is paused, false otherwise.
    */
   public boolean getPause() {
     return mPause;
   }
 
+  /**
+   * Increments the FPS (Frames Per Second) counter.
+   */
   public synchronized void IncrementFpsCounter() {
     fpsCounter++;
   }
 
-  /****************************************************************************/
   /**
-   * Initialisation de l'applet
-   *
+   * Initializes the applet.
    */
   @Override
   public void init() {
@@ -148,9 +160,12 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     setLayout(null);
   }
 
-  /****************************************************************************/
   /**
-   * Paint the image and all active highlights.
+   * This method is responsible for painting the image on the graphics object.
+   * It checks if the base image is null and if not, it draws the image on the
+   * graphics object.
+   *
+   * @param g The graphics object on which the image is to be painted.
    */
   @Override
   public void paint(Graphics g) {
@@ -160,18 +175,11 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     }
     g.drawImage(mBaseImage, 0, 0, this);
   }
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
-  /****************************************************************************/
 
-  /****************************************************************************/
   /**
-   * Mettre en pause
-   *
+   * Toggles the pause state of the painting ants simulation.
+   * If the simulation is currently paused, it will be resumed.
+   * If the simulation is currently running, it will be paused.
    */
   public void pause() {
     mPause = !mPause;
@@ -181,11 +189,12 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     // }
   }
 
-  // =========================================================================
-  // cette fonction analyse une chaine :
-  // si pStr est un nombre : sa valeur est retournée
-  // si pStr est un interval x..y : une valeur au hasard dans [x,y] est
-  // retournée
+  /**
+   * Reads a float parameter from a string.
+   * 
+   * @param pStr the string containing the float parameter
+   * @return the float value read from the string
+   */
   private float readFloatParameter(String pStr) {
     float lMin, lMax, lResult;
     // System.out.println(" chaine pStr: "+pStr);
@@ -209,11 +218,18 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     return lResult;
   }
 
-  // =========================================================================
-  // cette fonction analyse une chaine :
-  // si pStr est un nombre : sa valeur est retournée
-  // si pStr est un interval x..y : une valeur au hasard dans [x,y] est
-  // retournée
+  /**
+   * Reads an integer parameter from a string and returns the result.
+   * The string should be in the format "min:max", where min and max are integer
+   * values.
+   * If a max value is provided and it is greater than the min value, a random
+   * number between min and max (inclusive) is returned.
+   * If no max value is provided, the min value is returned.
+   *
+   * @param pStr the string containing the integer parameter in the format
+   *             "min:max"
+   * @return the integer value read from the string
+   */
   private int readIntParameter(String pStr) {
     int lMin, lMax, lResult;
     StringTokenizer lStrTok = new StringTokenizer(pStr, ":");
@@ -234,8 +250,16 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     return lResult;
   }
 
-  // =========================================================================
-  // lecture des paramètres de l'applet
+  /**
+   * Reads the parameters for the ants.
+   * This method reads the threshold luminance and the number of ants from the
+   * HTML parameters.
+   * If the parameters are not defined, default values are used.
+   * It also reads the parameters for each ant, including the deposited color,
+   * followed color, initial position, direction, and size.
+   * If the parameters are not defined, random values are used.
+   * Finally, it creates and adds the ants to the colony.
+   */
   private void readParameterFourmis() {
     String lChaine;
     int R, G, B;
@@ -448,10 +472,15 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     // System.out.println("Nombre de Fourmis:"+lNbFourmis);
   }
 
-  /*************************************************************************************************
-   * Titre : boolean testCouleur() Description : fonction testant l'égalité de
-   * deux couleurs
-   *
+  /**
+   * Executes the main logic of the program.
+   * This method is called when the thread starts.
+   * It initializes the painting, starts the colony thread, and continuously
+   * updates the status message.
+   * If the program is paused, it displays "pause" as the status message.
+   * If the program is running, it displays the current frames per second (FPS)
+   * and a progress bar based on the counter value.
+   * The method sleeps for 10 milliseconds between updates.
    */
   @Override
   public void run() {
@@ -493,15 +522,16 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
       try {
         Thread.sleep(10);
       } catch (InterruptedException e) {
-        //showStatus(e.toString());
+        // showStatus(e.toString());
       }
     }
   }
 
-  /****************************************************************************/
   /**
-   * Lancer l'applet
-   *
+   * Starts the painting ants application.
+   * Initializes the colony, creates and starts the colony thread,
+   * sets up a timer to update the frames per second (FPS),
+   * and starts the application thread.
    */
   @Override
   public void start() {
@@ -519,7 +549,7 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     fpsTimer.setRepeats(true);
     fpsTimer.start();
 
-    //showStatus("starting...");
+    // showStatus("starting...");
     // Create the thread.
     mApplis = new Thread(this);
     // and let it start running
@@ -527,14 +557,15 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
     mApplis.start();
   }
 
-  /****************************************************************************/
   /**
-   * Arrêter l'applet
-   *
+   * Stops the painting ants simulation.
+   * This method stops the FPS timer, requests the colony thread to stop,
+   * and waits for the colony thread to finish. It also resets the thread and
+   * application references.
    */
   @Override
   public void stop() {
-    //showStatus("stopped...");
+    // showStatus("stopped...");
 
     fpsTimer.stop();
 
@@ -550,7 +581,8 @@ public class PaintingAnts extends java.applet.Applet implements Runnable {
   }
 
   /**
-   * update Fourmis per second
+   * Updates the frames per second (FPS) counter.
+   * This method is synchronized to ensure thread safety.
    */
   private synchronized void updateFPS() {
     lastFps = fpsCounter;
